@@ -2,23 +2,21 @@ FROM alpine:3.9
 MAINTAINER Madhav Raj Maharjan <madhav.maharjan@gmail.com>
 
 ARG VCS_REF
-ARG ALPINE_VERSION
+ARG TEMPLATE_VERSION
 ARG DEBUG=false
 
-LABEL description="Docker container woth Tools" os_version="Alpine ${ALPINE_VERSION}" \
+LABEL description="Docker container with Tools" os_version="Alpine 3.4" \
       org.label-schema.vcs-ref=${VCS_REF} org.label-schema.vcs-url="https://github.com/madharjan/docker-tools"
 
-ENV ALPINE_VERSION ${ALPINE_VERSION}
+ENV HOME /root
+ENV ALPINE_VERSION 3.4
+ENV TEMPLATE_VERSION ${TEMPLATE_VERSION}
 
-RUN \
-  adduser -h /home -s /sbin/nologin -D alpine && \
-  apk add --update --no-cache htop && \
-  rm -f /tmp/* /etc/apk/cache/* /var/cache/apk/*
+RUN mkdir -p /build
+COPY . /build
 
-USER alpine
+RUN chmod 755 /build/scripts/*.sh && /build/scripts/install.sh && /build/scripts/cleanup.sh
 
-WORKDIR /home
+WORKDIR /root
 
-ENTRYPOINT ["htop"]
-
-ENTRYPOINT ["/bin/sh"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
